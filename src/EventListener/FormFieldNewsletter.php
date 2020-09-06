@@ -35,6 +35,11 @@ class FormFieldNewsletter extends FormCheckBox
     {
         parent::__construct($arrAttributes);
 
+        // Check if channels set.
+        if(null === $this->newsletter_channels) {
+            return $this->arrOptions = [];
+        }
+
         // Hide the channels
         if ($this->newsletter_hideChannels) {
             $this->arrOptions =

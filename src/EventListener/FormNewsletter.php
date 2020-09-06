@@ -348,6 +348,10 @@ class FormNewsletter
      */
     public function getSubscribeDefault($varValue)
     {
+        if(null === $varValue) {
+            return;
+        }
+
         if (!trim($varValue)) {
             System::loadLanguageFile('tl_module');
             $varValue = trim($GLOBALS['TL_LANG']['tl_module']['text_subscribe'][1]);
