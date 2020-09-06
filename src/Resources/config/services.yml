@@ -1,0 +1,10 @@
+services:
+    Espin\FormNewsletterBundle\EventListener\FormNewsletter:
+        public: true
+        tags:
+            -   name: contao.hook
+                hook: generatePage
+                method: activateRecipient
+            -   name: contao.hook
+                hook: processFormData
+                method: processFormData

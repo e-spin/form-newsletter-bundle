@@ -1,0 +1,43 @@
+{
+  "name": "e-spin/form-newsletter-bundle",
+  "description": "Add a newsletter subscription to a form in the Contao.",
+  "keywords": [
+    "contao",
+    "form",
+    "newsletter"
+  ],
+  "type": "contao-bundle",
+  "homepage": "https://www.e-spin.de",
+  "license": "LGPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "e-spin",
+      "email": "info@e-spin.de",
+      "homepage": "https://www.e-spin.de",
+      "role": "Developer"
+    },
+    {
+      "name": "Kamil Kuzminski",
+      "email": "kamil.kuzminski@codefog.pl",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^7.1",
+    "contao/core-bundle": "^4.4",
+    "contao/newsletter-bundle": "^4.4",
+    "contao-community-alliance/contao-polyfill-bundle": "^1.1"
+  },
+  "require-dev": {
+    "contao/manager-plugin": "^2.2",
+    "terminal42/notification_center": "^1.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Espin\\FormNewsletterBundle\\": "src/"
+    }
+  },
+  "extra": {
+    "contao-manager-plugin": "Espin\\FormNewsletterBundle\\ContaoManager\\Plugin"
+  }
+}
