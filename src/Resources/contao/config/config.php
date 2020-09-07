@@ -26,10 +26,7 @@ $GLOBALS['TL_FFL']['newsletter'] = FormFieldNewsletter::class;
 /**
  * Hooks
  */
-//$GLOBALS['TL_HOOKS']['generatePage'][]    =
-//    ['Espin\FormNewsletterBundle\EventListener\FormNewsletter', 'activateRecipient'];
-//$GLOBALS['TL_HOOKS']['processFormData'][] =
-//    ['Espin\FormNewsletterBundle\EventListener\FormNewsletter', 'processFormData'];
+// Moved to service.yml by polyfill-bundle.
 
 /**
  * Replace the notification_center hook to send form notification
