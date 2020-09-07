@@ -278,16 +278,18 @@ class FormNewsletter
     /**
      * Send the form notification
      *
-     * @param array
-     * @param array
+     * @param $arrData
+     * @param $arrForm
+     * @param $arrFiles
+     * @param $arrLabels
      */
-    public function sendFormNotification($arrData, $arrForm)
+    public function sendFormNotification($arrData, $arrForm, $arrFiles, $arrLabels)
     {
         $objHelper = System::importStatic('\NotificationCenter\tl_form');
 
         // Use the original method to send notification
         if (empty(static::$arrTokens)) {
-            $objHelper->sendFormNotification($arrData, $arrForm);
+            $objHelper->sendFormNotification($arrData, $arrForm, $arrFiles, $arrLabels);
             return;
         }
 
