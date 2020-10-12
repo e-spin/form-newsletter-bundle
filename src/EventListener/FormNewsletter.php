@@ -194,7 +194,7 @@ class FormNewsletter
         }
 
         $time     = time();
-        $strToken = md5(uniqid(mt_rand(), true));
+        $strToken = md5(uniqid((string) mt_rand(), true));
 
         foreach ($arrSubscriptions as $strEmail => $arrSubscription) {
             $objChannels = NewsletterChannelModel::findByIds(array_unique($arrSubscription['channels']));
