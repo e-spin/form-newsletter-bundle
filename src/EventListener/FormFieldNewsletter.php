@@ -53,7 +53,7 @@ class FormFieldNewsletter extends FormCheckBox
             $this->strLabel = '';
         } else {
             // Generate the channels as options
-            $objChannels = NewsletterChannelModel::findByIds(unserialize($this->newsletter_channels, true));
+            $objChannels = NewsletterChannelModel::findByIds(\StringUtil::deserialize($this->newsletter_channels, true));
 
             if ($objChannels !== null) {
                 $arrOptions = [];
