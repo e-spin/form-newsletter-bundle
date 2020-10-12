@@ -13,3 +13,5 @@ Mit dieser Erweiterung können Sie eine Newsletter-Anmeldung zu einem Formular i
 Es steht ein neues Formularwidget zur Verfügung, welches die Einstellungsmöglichkeiten wie das FE-Modul
 zur Verfügung stellt wie z.B. die Auswahl der Abonnements oder ob die Bestätigung über eine separate E-Mail erfolgen soll.
 Die Erweiterung unterstützt das "Notification Center" mit der Übergabe der notwendigen Token.
+
+![Screenshot widget](https://github.com/e-spin/form-newsletter-bundle/blob/master/doc/screenshot_01.png?raw=true "Screenshot widget")
