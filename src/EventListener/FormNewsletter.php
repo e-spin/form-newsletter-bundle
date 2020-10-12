@@ -163,7 +163,7 @@ class FormNewsletter
                     ];
             }
 
-            $arrChannels = unserialize($objFields->newsletter_channels, true);
+            $arrChannels = \StringUtil::deserialize($objFields->newsletter_channels, true);
 
             // Store only those channels that were chosen
             if (!$objFields->newsletter_hideChannels) {
