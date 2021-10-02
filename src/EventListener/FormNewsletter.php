@@ -3,12 +3,12 @@
 /**
  * This file is part of e-spin/form-newsletter-bundle.
  *
- * Copyright (c) 2020 e-spin
+ * Copyright (c) 2021 e-spin
  *
  * @package   e-spin/form-newsletter-bundle
  * @author    Ingolf Steinhardt <info@e-spin.de>
  * @author    Kamil Kuzminski <kamil.kuzminski@codefog.pl>
- * @copyright 2020 e-spin
+ * @copyright 2021 e-spin
  * @license   LGPL-3.0-or-later
  */
 
@@ -16,13 +16,16 @@ declare(strict_types=1);
 
 namespace Espin\FormNewsletterBundle\EventListener;
 
+use Contao\CoreBundle\OptIn\OptIn;
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\Email;
 use Contao\Environment;
 use Contao\FormFieldModel;
+use Contao\FrontendTemplate;
 use Contao\Idna;
 use Contao\Input;
+use Contao\NewsletterBlacklistModel;
 use Contao\NewsletterChannelModel;
 use Contao\NewsletterRecipientsModel;
 use Contao\PageModel;
@@ -54,10 +57,31 @@ class FormNewsletter
             return;
         }
 
-        $objRecipient = NewsletterRecipientsModel::findByToken(Input::get('form_newsletter_token'));
+        /** @var OptIn $optIn */
+        $optIn = System::getContainer()->get('contao.opt-in');
 
-        if ($objRecipient === null) {
+        // Find an unconfirmed token
+        if ((!$optInToken = $optIn->find(Input::get('form_newsletter_token')))
+            || !$optInToken->isValid()
+            || \count($arrRelated = $optInToken->getRelatedRecords()) < 1
+            || key($arrRelated) != 'tl_newsletter_recipients'
+            || \count($arrIds = current($arrRelated)) < 1) {
             return;
+        }
+
+        if ($optInToken->isConfirmed()) {
+            return;
+        }
+
+        $arrRecipients = [];
+
+        // Validate the token
+        foreach ($arrIds as $intId) {
+            if (!$objRecipient = NewsletterRecipientsModel::findByPk($intId)) {
+                return;
+            }
+
+            $arrRecipients[] = $objRecipient;
         }
 
         $time        = time();
@@ -66,18 +90,16 @@ class FormNewsletter
         $arrCids     = [];
         $intJumpTo   = 0;
 
-        // Update the subscriptions
-        while ($objRecipient->next()) {
+        // Activate the subscriptions
+        foreach ($arrRecipients as $objRecipient) {
             $objChannel = $objRecipient->getRelated('pid');
 
             $arrAdd[]      = $objRecipient->id;
             $arrChannels[] = $objChannel->title;
-            $arrCids[]     = $objChannel->id;
+            $arrCids[]     = $objRecipient->pid;
 
-            $objRecipient->active    = 1;
-            $objRecipient->token     = '';
-            $objRecipient->pid       = $objChannel->id;
-            $objRecipient->confirmed = $time;
+            $objRecipient->tstamp = $time;
+            $objRecipient->active = '1';
             $objRecipient->save();
 
             // Set the jumpTo page
@@ -85,6 +107,8 @@ class FormNewsletter
                 $intJumpTo = $objRecipient->form_newsletter_jumpTo;
             }
         }
+
+        $optInToken->confirm();
 
         // Log activity
         System::log(
@@ -94,9 +118,10 @@ class FormNewsletter
         );
 
         // HOOK: post activation callback
-        if (isset($GLOBALS['TL_HOOKS']['activateRecipient']) && is_array($GLOBALS['TL_HOOKS']['activateRecipient'])) {
+        if (isset($GLOBALS['TL_HOOKS']['activateRecipient']) && \is_array($GLOBALS['TL_HOOKS']['activateRecipient'])) {
             foreach ($GLOBALS['TL_HOOKS']['activateRecipient'] as $callback) {
-                System::importStatic($callback[0])->$callback[1]($objRecipient->email, $arrAdd, $arrCids);
+                $this->import($callback[0]);
+                $this->{$callback[0]}->{$callback[1]}($optInToken->getEmail(), $arrAdd, $arrCids);
             }
         }
 
@@ -133,6 +158,7 @@ class FormNewsletter
         }
 
         $arrSubscriptions = [];
+        $strEmail         = '';
 
         // Collect the channels to subscribe
         while ($objFields->next()) {
@@ -188,13 +214,18 @@ class FormNewsletter
             }
         }
 
-        // Nothing to subscribe
+        // Nothing to subscribe.
         if (empty($arrSubscriptions)) {
             return;
         }
 
-        $time     = time();
-        $strToken = md5(uniqid((string) mt_rand(), true));
+        // No email.
+        if (empty($strEmail)) {
+            return;
+        }
+
+        $time       = time();
+        $arrRelated = [];
 
         foreach ($arrSubscriptions as $strEmail => $arrSubscription) {
             $objChannels = NewsletterChannelModel::findByIds(array_unique($arrSubscription['channels']));
@@ -235,21 +266,32 @@ class FormNewsletter
                 $objRecipient->email                  = $strEmail;
                 $objRecipient->active                 = '';
                 $objRecipient->addedOn                = $time;
-                $objRecipient->ip                     = System::anonymizeIp(Environment::get('ip'));
-                $objRecipient->token                  = $strToken;
-                $objRecipient->confirmed              = '';
                 $objRecipient->form_newsletter_jumpTo = $arrSubscription['jumpTo'];
 
                 $objRecipient->save();
+
+                // Remove the blacklist entry (see #4999)
+                if (($objBlacklist = NewsletterBlacklistModel::findByHashAndPid(md5($strEmail), $id)) !== null) {
+                    $objBlacklist->delete();
+                }
+
+                $arrRelated['tl_newsletter_recipients'][] = $objRecipient->id;
             }
+
+            /** @var OptIn $optIn */
+            $optIn      = System::getContainer()->get('contao.opt-in');
+            $optInToken = $optIn->create('nl', $strEmail, $arrRelated);
 
             $strChannels = implode("\n", $objChannels->fetchEach('title'));
 
             $arrTokens =
                 [
-                    'token'    => $strToken,
+                    'token'    => $optInToken->getIdentifier(),
                     'domain'   => Idna::decode(Environment::get('host')),
-                    'link'     => Idna::decode(Environment::get('base')) . '?form_newsletter_token=' . $strToken,
+                    'link'     => Idna::decode(Environment::get('base'))
+                                  . Environment::get('request')
+                                  . ((strpos(Environment::get('request'),'?') !== false) ? '&' : '?')
+                                  . 'form_newsletter_token=' . $optInToken->getIdentifier(),
                     'channel'  => $strChannels,
                     'channels' => $strChannels,
                 ];
@@ -285,6 +327,7 @@ class FormNewsletter
      */
     public function sendFormNotification($arrData, $arrForm, $arrFiles, $arrLabels)
     {
+
         $objHelper = System::importStatic('\NotificationCenter\tl_form');
 
         // Use the original method to send notification
@@ -299,29 +342,21 @@ class FormNewsletter
             return;
         }
 
-        $arrTokens = [];
-
-        foreach ($arrData as $k => $v) {
-            $objHelper->flatten($v, 'form_' . $k, $arrTokens);
-        }
-
-        foreach ($arrForm as $k => $v) {
-            $objHelper->flatten($v, 'formconfig_' . $k, $arrTokens);
-        }
+        $arrTokens = $objHelper->generateTokens((array) $arrData, (array) $arrForm, (array) $arrFiles, (array) $arrLabels, ',');
 
         // Add the newsletter tokens
         foreach (static::$arrTokens as $k => $v) {
             $arrTokens['newsletter_' . $k] = $v;
         }
 
-        // Administrator e-mail
+        // Administrator email
         $arrTokens['admin_email'] = $GLOBALS['TL_ADMIN_EMAIL'];
 
         $objNotification->send($arrTokens, $GLOBALS['TL_LANGUAGE']);
     }
 
     /**
-     * Get the e-mail form fields
+     * Get the email form fields
      *
      * @param DataContainer
      */
@@ -350,7 +385,7 @@ class FormNewsletter
      */
     public function getSubscribeDefault($varValue)
     {
-        if(null === $varValue) {
+        if (null === $varValue) {
             return;
         }
 

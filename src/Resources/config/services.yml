@@ -8,3 +8,4 @@ services:
             -   name: contao.hook
                 hook: processFormData
                 method: processFormData
+                priority: 2000
