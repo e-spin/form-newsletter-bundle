@@ -22,7 +22,6 @@ use Contao\DataContainer;
 use Contao\Email;
 use Contao\Environment;
 use Contao\FormFieldModel;
-use Contao\FrontendTemplate;
 use Contao\Idna;
 use Contao\Input;
 use Contao\NewsletterBlacklistModel;
@@ -146,8 +145,10 @@ class FormNewsletter
     /**
      * Process the form data
      *
-     * @param array
-     * @param array
+     * @param $arrData
+     * @param $arrForm
+     *
+     * @throws \Exception
      */
     public function processFormData($arrData, $arrForm)
     {
@@ -327,7 +328,6 @@ class FormNewsletter
      */
     public function sendFormNotification($arrData, $arrForm, $arrFiles, $arrLabels)
     {
-
         $objHelper = System::importStatic('\NotificationCenter\tl_form');
 
         // Use the original method to send notification
@@ -358,9 +358,11 @@ class FormNewsletter
     /**
      * Get the email form fields
      *
-     * @param DataContainer
+     * @param DataContainer $dc
+     *
+     * @return array
      */
-    public function getEmailFields(DataContainer $dc)
+    public function getEmailFields(DataContainer $dc): array
     {
         $arrFields = [];
         $objFields = Database::getInstance()->prepare(
