@@ -20,7 +20,7 @@ use Espin\FormNewsletterBundle\EventListener\FormNewsletter;
 
 $GLOBALS['TL_DCA']['tl_form_field']['palettes']['__selector__'][]             = 'newsletter_confirmation';
 $GLOBALS['TL_DCA']['tl_form_field']['palettes']['newsletter']                 =
-    '{type_legend},type,name,label;{fconfig_legend},mandatory,newsletter_email;{newsletter_legend},newsletter_channels,newsletter_hideChannels,newsletter_jumpTo,newsletter_confirmation;{expert_legend:hide},class;{template_legend:hide},customTpl;{submit_legend},addSubmit';
+    '{type_legend},type,name,label;{fconfig_legend},mandatory,newsletter_email;{newsletter_legend},newsletter_channels,newsletter_hideChannels,newsletter_jumpTo,newsletter_confirmation;{expert_legend:hide},class;{template_legend:hide},customTpl;{invisible_legend:hide},invisible';
 $GLOBALS['TL_DCA']['tl_form_field']['subpalettes']['newsletter_confirmation'] = 'newsletter_subscribe';
 
 /**

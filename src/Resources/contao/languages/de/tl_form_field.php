@@ -3,12 +3,12 @@
 /**
  * This file is part of e-spin/form-newsletter-bundle.
  *
- * Copyright (c) 2020 e-spin
+ * Copyright (c) 2020-2024 e-spin
  *
  * @package   e-spin/form-newsletter-bundle
  * @author    Ingolf Steinhardt <info@e-spin.de>
  * @author    Kamil Kuzminski <kamil.kuzminski@codefog.pl>
- * @copyright 2020 e-spin
+ * @copyright 2020-2024 e-spin
  * @license   LGPL-3.0-or-later
  */
 
@@ -30,7 +30,7 @@ $GLOBALS['TL_LANG']['tl_form_field']['newsletter_jumpTo']       = [
 ];
 $GLOBALS['TL_LANG']['tl_form_field']['newsletter_confirmation'] = [
     'E-Mail für die Bestätigung separat senden',
-    'Senden Sie die E-Mail für die Bestätigungs separat. Wenn Sie diese Option nicht wählen, stellen Sie sicher, dass Sie Newsletter-Token in die Benachrichtigung aufnehmen.'
+    'Senden Sie die E-Mail für die Bestätigung separat. Wenn Sie diese Option nicht wählen, stellen Sie sicher, dass Sie den Newsletter-Token in die Benachrichtigung aufnehmen.'
 ];
 $GLOBALS['TL_LANG']['tl_form_field']['newsletter_subscribe']    = [
     'Abonnementbestätigung',

@@ -1,10 +1,14 @@
 services:
-    Espin\FormNewsletterBundle\EventListener\FormNewsletter:
-        public: true
-        tags:
-            -   name: contao.hook
-                hook: generatePage
-                method: activateRecipient
-            -   name: contao.hook
-                hook: processFormData
-                method: processFormData
+  Espin\FormNewsletterBundle\EventListener\FormNewsletter:
+    public: true
+    arguments:
+      - '@Contao\CoreBundle\String\SimpleTokenParser'
+      - '@contao.opt_in'
+      - '@?monolog.logger.contao.cron'
+    tags:
+      - name: contao.hook
+        hook: generatePage
+        method: activateRecipient
+      - name: contao.hook
+        hook: processFormData
+        method: processFormData
