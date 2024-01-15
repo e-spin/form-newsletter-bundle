@@ -3,12 +3,12 @@
 /**
  * This file is part of e-spin/form-newsletter-bundle.
  *
- * Copyright (c) 2020 e-spin
+ * Copyright (c) 2020-2024 e-spin
  *
  * @package   e-spin/form-newsletter-bundle
  * @author    Ingolf Steinhardt <info@e-spin.de>
  * @author    Kamil Kuzminski <kamil.kuzminski@codefog.pl>
- * @copyright 2020 e-spin
+ * @copyright 2020-2024 e-spin
  * @license   LGPL-3.0-or-later
  */
 
@@ -16,29 +16,25 @@ declare(strict_types=1);
 
 namespace Espin\FormNewsletterBundle\EventListener;
 
-use Contao\FormCheckBox;
+use Contao\FormCheckbox;
 use Contao\NewsletterChannelModel;
+use Contao\StringUtil;
 
 /**
  * Class FormFieldNewsletter
  *
  * Front end form field "newsletter".
  */
-class FormFieldNewsletter extends FormCheckBox
+class FormFieldNewsletter extends FormCheckbox
 {
     /**
      * Prepare the options
      *
-     * @param array
+     * @param array $arrAttributes
      */
     public function __construct($arrAttributes = null)
     {
         parent::__construct($arrAttributes);
-
-        // Check if channels set.
-        if(null === $this->newsletter_channels) {
-            return $this->arrOptions = [];
-        }
 
         // Hide the channels
         if ($this->newsletter_hideChannels) {
@@ -52,8 +48,8 @@ class FormFieldNewsletter extends FormCheckBox
 
             $this->strLabel = '';
         } else {
-            // Generate the channels as options
-            $objChannels = NewsletterChannelModel::findByIds(\StringUtil::deserialize($this->newsletter_channels, true));
+            // Generate the channels as options.
+            $objChannels = NewsletterChannelModel::findByIds(StringUtil::deserialize($this->newsletter_channels, true));
 
             if ($objChannels !== null) {
                 $arrOptions = [];
@@ -67,6 +63,7 @@ class FormFieldNewsletter extends FormCheckBox
                 }
 
                 $this->arrOptions = $arrOptions;
+                $this->multiple   = true;
             }
         }
     }

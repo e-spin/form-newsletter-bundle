@@ -3,12 +3,12 @@
 /**
  * This file is part of e-spin/form-newsletter-bundle.
  *
- * Copyright (c) 2020 e-spin
+ * Copyright (c) 2020-2024 e-spin
  *
  * @package   e-spin/form-newsletter-bundle
  * @author    Ingolf Steinhardt <info@e-spin.de>
  * @author    Kamil Kuzminski <kamil.kuzminski@codefog.pl>
- * @copyright 2020 e-spin
+ * @copyright 2020-2024 e-spin
  * @license   LGPL-3.0-or-later
  */
 
@@ -18,22 +18,18 @@ declare(strict_types=1);
  * Front end form fields
  */
 
+use Contao\System;
 use Espin\FormNewsletterBundle\EventListener\FormFieldNewsletter;
 use Espin\FormNewsletterBundle\EventListener\FormNewsletter;
 
 $GLOBALS['TL_FFL']['newsletter'] = FormFieldNewsletter::class;
 
 /**
- * Hooks
- */
-// Moved to service.yml by polyfill-bundle.
-
-/**
  * Replace the notification_center hook to send form notification
  */
-if (\array_key_exists('notification_center', \Contao\System::getContainer()->getParameter('kernel.bundles'))) {
+if (\array_key_exists('notification_center', System::getContainer()->getParameter('kernel.bundles'))) {
     foreach ($GLOBALS['TL_HOOKS']['processFormData'] as $k => $v) {
-        if ($v[0] == 'NotificationCenter\tl_form' && $v[1] == 'sendFormNotification') {
+        if ($v[0] === 'NotificationCenter\tl_form' && $v[1] === 'sendFormNotification') {
             unset($GLOBALS['TL_HOOKS']['processFormData'][$k]);
             $GLOBALS['TL_HOOKS']['processFormData'][] =
                 [FormNewsletter::class, 'sendFormNotification'];
@@ -44,6 +40,6 @@ if (\array_key_exists('notification_center', \Contao\System::getContainer()->get
 
     foreach (['email_subject', 'email_text', 'email_html', 'file_name', 'file_content'] as $type) {
         $GLOBALS['NOTIFICATION_CENTER']['NOTIFICATION_TYPE']['contao']['core_form'][$type] =
-            array_merge($GLOBALS['NOTIFICATION_CENTER']['NOTIFICATION_TYPE']['contao']['core_form'][$type], $arrTokens);
+            \array_merge($GLOBALS['NOTIFICATION_CENTER']['NOTIFICATION_TYPE']['contao']['core_form'][$type], $arrTokens);
     }
 }
