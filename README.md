@@ -6,7 +6,7 @@ With this extension you can add a newsletter subscription to a form in the Conta
 A new form widget is available, which allows the setting options such as the FE module
 such as the selection of subscriptions or whether the confirmation should be sent by a separate email.
 
-[!TIP] From version 2.1
+> [!TIP] From version 2.1
 
 The registration information is also included in the POST data of the form and is available in the HOOKs
 `prepareFormData` and `processFormData`.
@@ -27,7 +27,7 @@ Es steht ein neues Formularwidget zur Verfügung, welches die Einstellungsmögli
 zur Verfügung stellt - wie z. B. die Auswahl der Abonnements oder ob die Bestätigung über eine separate E-Mail
 erfolgen soll.
 
-[!TIP] Ab Version 2.1
+> [!TIP] Ab Version 2.1
 
 Die Informationen zur Anmeldung werden auch in die POST-Daten des Formulars eingeschleust und stehen in den HOOKs
 `prepareFormData` und `processFormData` zur Verfügung.
